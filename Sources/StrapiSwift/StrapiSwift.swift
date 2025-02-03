@@ -4,6 +4,7 @@
 import Foundation
 import SwiftUI
 
-public func printer(_ message: String) {
+public func printer(_ message: String) -> String {
     print(message)
+    return message
 }
