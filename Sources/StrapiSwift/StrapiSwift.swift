@@ -4,7 +4,8 @@
 import Foundation
 import SwiftUI
 
+@discardableResult
 public func printer(_ message: String) -> String {
-    print(message)
+    print(message) 
     return message
 }
