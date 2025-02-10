@@ -1,7 +1,4 @@
-# This workflow will build a Swift project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
-
-name: Swift
+name: Swift Build & Test
 
 on:
   push:
@@ -11,12 +8,17 @@ on:
 
 jobs:
   build:
-
-    runs-on: macos-latest
+    runs-on: macos-15  # Gebruik macOS 15 voor compatibiliteit met Swift 6.0.
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Verifieer Swift-versie
+      run: swift --version
+
+    - name: Build project
       run: swift build -v
+
     - name: Run tests
       run: swift test -v
