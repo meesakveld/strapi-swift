@@ -86,6 +86,10 @@ public struct CollectionQuery {
         query.status = status
         return query
     }
+    
+    public func withDocumentId(_ documentId: String) -> DocumentQuery {
+        return DocumentQuery(collection: self.collection, documentId: documentId, baseURLProvider: self.baseURLProvider)
+    }
 
     /// Fetch de documenten
     public func getDocuments() async throws {
