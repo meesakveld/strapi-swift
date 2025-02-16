@@ -11,58 +11,126 @@ import Foundation
 public struct CollectionQuery {
     private let collection: String
     private let baseURLProvider: () throws -> String
-    private var filters: [String: String] = [:]
-    private var sortField: String?
-    private var descending: Bool = false
-
+    
+    private var filters: [String: Any] = [:]
+    private var populate: [String: PopulateQuery] = [:]
+    private var fields: [String] = []
+    private var sort: [String] = []
+    private var pagination: [String: Int] = [:]
+    private var locale: String?
+    private var status: String?
+    
     init(collection: String, baseURLProvider: @escaping () throws -> String) {
         self.collection = collection
         self.baseURLProvider = baseURLProvider
     }
 
-    /// Selecteer een specifiek document via ID en schakel over naar `DocumentQuery`
-    public func withDocumentId(_ id: String) -> DocumentQuery {
-        return DocumentQuery(collection: collection, documentId: id, baseURLProvider: baseURLProvider)
-    }
-
-    /// Voeg een filter toe aan de query
-    public func `where`(_ field: String, isEqualTo value: String) -> CollectionQuery {
+    /// Voeg een filter toe
+    public func filter(_ field: String, isEqualTo value: Any) -> CollectionQuery {
         var query = self
-        query.filters[field] = value
+        query.filters[field] = ["$eq": value]
         return query
     }
 
     /// Sorteer de resultaten
-    public func order(by field: String, descending: Bool = false) -> CollectionQuery {
+    public func sort(by field: String, order: String = "asc") -> CollectionQuery {
         var query = self
-        query.sortField = field
-        query.descending = descending
+        query.sort.append("\(field):\(order)")
         return query
     }
 
-    /// Fetch een lijst van documenten
-    public func getDocuments() /* <T: Decodable>(as type: T.Type) */ async throws /* -> [T] */ {
-        let url = try buildURL()
-        print("GET DOCUMENTS", url)
-//        return try await fetchData(url: url, as: type) as! [T]
+    /// Definieer welke velden moeten worden opgehaald
+    public func withFields(_ fields: [String]) -> CollectionQuery {
+        var query = self
+        query.fields = fields
+        return query
     }
 
-    /// 🔗 Bouw de API URL voor collecties
+    /// 🚀 Voeg een `populate` optie toe met een closure voor verdere configuratie
+    public func populate(_ field: String, _ configure: ((inout PopulateQuery) -> Void)? = nil) -> CollectionQuery {
+        var query = self
+        if let configure = configure {
+            var subquery = PopulateQuery()
+            configure(&subquery)
+            query.populate[field] = subquery
+        } else {
+            query.populate[field] = PopulateQuery() // Populate zonder configuratie
+        }
+        return query
+    }
+
+    /// Stel paginering in
+    public func paginate(page: Int, pageSize: Int) -> CollectionQuery {
+        var query = self
+        query.pagination = ["page": page, "pageSize": pageSize]
+        return query
+    }
+
+    /// Stel de locale in
+    public func locale(_ locale: String) -> CollectionQuery {
+        var query = self
+        query.locale = locale
+        return query
+    }
+
+    /// Stel de status in
+    public func status(_ status: String) -> CollectionQuery {
+        var query = self
+        query.status = status
+        return query
+    }
+
+    /// Fetch de documenten
+    public func getDocuments() async throws {
+        let url = try buildURL()
+        print(url)
+    }
+
+    /// 🔗 Bouw de API URL met query-parameters
     private func buildURL() throws -> URL {
         let baseURL = try baseURLProvider()
-        print("BASE URL: \(baseURL)")
         let urlString = "\(baseURL)/api/\(collection)"
-        print("URL STRING: \(urlString)")
+        
+        var queryItems: [URLQueryItem] = []
 
-        var queryItems: [URLQueryItem] = filters.map { URLQueryItem(name: "filters[\($0.key)]", value: $0.value) }
+        // Filters
+        for (field, condition) in filters {
+            for (operatorKey, value) in condition as! [String: Any] {
+                queryItems.append(URLQueryItem(name: "filters[\(field)][\(operatorKey)]", value: "\(value)"))
+            }
+        }
 
-        if let sortField = sortField {
-            let order = descending ? "desc" : "asc"
-            queryItems.append(URLQueryItem(name: "sort", value: "\(sortField):\(order)"))
+        // Populate
+        for (field, subquery) in populate {
+            let subqueryDict = subquery.toDictionary()
+            queryItems.append(contentsOf: buildPopulateQuery(field: field, dict: subqueryDict))
+        }
+
+        // Sortering
+        for (index, value) in sort.enumerated() {
+            queryItems.append(URLQueryItem(name: "sort[\(index)]", value: value))
+        }
+
+        // Velden
+        for (index, value) in fields.enumerated() {
+            queryItems.append(URLQueryItem(name: "fields[\(index)]", value: value))
+        }
+
+        // Paginering
+        for (key, value) in pagination {
+            queryItems.append(URLQueryItem(name: "pagination[\(key)]", value: "\(value)"))
+        }
+
+        // Locale en status
+        if let locale = locale {
+            queryItems.append(URLQueryItem(name: "locale", value: locale))
+        }
+        if let status = status {
+            queryItems.append(URLQueryItem(name: "status", value: status))
         }
 
         var components = URLComponents(string: urlString)
-        components?.queryItems = queryItems.isEmpty ? nil : queryItems
+        components?.queryItems = queryItems
 
         guard let url = components?.url else {
             throw URLError(.badURL)
@@ -70,12 +138,53 @@ public struct CollectionQuery {
         return url
     }
 
-    /// 🛠 Algemene fetch-functie
-    private func fetchData<T: Decodable>(url: URL, as type: T.Type) async throws -> T {
-        let (data, response) = try await URLSession.shared.data(from: url)
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw URLError(.badServerResponse)
+    /// Bouw query-items voor populates op basis van een geneste dictionary
+    private func buildPopulateQuery(field: String, dict: [String: Any]) -> [URLQueryItem] {
+        var items: [URLQueryItem] = []
+
+        for (key, value) in dict {
+            let baseKey = "populate[\(field)][\(key)]"
+            
+            if let arrayValues = value as? [String], !arrayValues.isEmpty {
+                for (index, val) in arrayValues.enumerated() {
+                    items.append(URLQueryItem(name: "\(baseKey)[\(index)]", value: val))
+                }
+            } else if let dictValues = value as? [String: Any], !dictValues.isEmpty {
+                items.append(contentsOf: buildPopulateQuery(field: "\(field)][\(key)", dict: dictValues))
+            } else if let stringValue = value as? String {
+                items.append(URLQueryItem(name: baseKey, value: stringValue))
+            }
         }
-        return try JSONDecoder().decode(StrapiResponse<T>.self, from: data).data
+
+        return items
+    }
+
+}
+
+/// 🎯 Object voor subqueries in `populate`
+public struct PopulateQuery {
+    private var subPopulates: [String: PopulateQuery] = [:]
+
+    /// Voeg een sub-populate toe
+    public mutating func populate(_ field: String, _ configure: ((inout PopulateQuery) -> Void)? = nil) {
+        var subquery = PopulateQuery()
+        configure?(&subquery)
+        subPopulates[field] = subquery
+    }
+
+    /// Converteer de subquery naar een dictionary-formaat voor URL-building
+    func toDictionary() -> [String: Any] {
+        var dict: [String: Any] = [:]
+
+        if !subPopulates.isEmpty {
+            var subDict: [String: Any] = [:]
+            for (key, value) in subPopulates {
+                let subPopulateDict = value.toDictionary()
+                subDict[key] = subPopulateDict.isEmpty ? "true" : subPopulateDict
+            }
+            dict["populate"] = subDict
+        }
+
+        return dict
     }
 }
