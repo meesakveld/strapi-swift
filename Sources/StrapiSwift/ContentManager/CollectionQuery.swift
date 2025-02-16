@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  CollectionQuery.swift
 //  StrapiSwift
 //
 //  Created by Mees Akveld on 13/02/2025.
@@ -92,9 +92,9 @@ public struct CollectionQuery {
     }
 
     /// Fetch de documenten
-    public func getDocuments() async throws {
+    public func getDocuments<T: Decodable>(as type: T.Type) async throws -> StrapiResponse<T> {
         let url = try buildURL()
-        print(url)
+        return try await getData(from: url, as: StrapiResponse<T>.self)
     }
 
     /// 🔗 Bouw de API URL met query-parameters
@@ -170,32 +170,4 @@ public struct CollectionQuery {
         return items
     }
 
-}
-
-/// 🎯 Object voor subqueries in `populate`
-public struct PopulateQuery {
-    private var subPopulates: [String: PopulateQuery] = [:]
-
-    /// Voeg een sub-populate toe
-    public mutating func populate(_ field: String, _ configure: ((inout PopulateQuery) -> Void)? = nil) {
-        var subquery = PopulateQuery()
-        configure?(&subquery)
-        subPopulates[field] = subquery
-    }
-
-    /// Converteer de subquery naar een dictionary-formaat voor URL-building
-    func toDictionary() -> [String: Any] {
-        var dict: [String: Any] = [:]
-
-        if !subPopulates.isEmpty {
-            var subDict: [String: Any] = [:]
-            for (key, value) in subPopulates {
-                let subPopulateDict = value.toDictionary()
-                subDict[key] = subPopulateDict.isEmpty ? "true" : subPopulateDict
-            }
-            dict["populate"] = subDict
-        }
-
-        return dict
-    }
 }

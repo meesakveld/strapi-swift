@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  ContentManager.swift
 //  StrapiSwift
 //
 //  Created by Mees Akveld on 13/02/2025.

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  DocumentQuery.swift
 //  StrapiSwift
 //
 //  Created by Mees Akveld on 13/02/2025.
@@ -34,9 +34,9 @@ public struct DocumentQuery {
     }
 
     /// Fetch het document
-    public func getDocument() async throws {
+    public func getDocument<T: Decodable>(as type: T.Type) async throws -> T {
         let url = try buildURL()
-        print(url)
+        return try await getData(from: url, as: type)
     }
 
     /// Bouw de API URL met populate-opties
