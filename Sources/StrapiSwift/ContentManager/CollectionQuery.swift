@@ -58,11 +58,18 @@ public struct CollectionQuery {
         }
         return query
     }
-
-    /// Stel paginering in
+    
+    /// Pagination with page and pageSize
     public func paginate(page: Int, pageSize: Int) -> CollectionQuery {
         var query = self
         query.pagination = ["page": page, "pageSize": pageSize]
+        return query
+    }
+    
+    /// Pagination with start (default = 0) and limit
+    public func paginate(start: Int = 0, limit: Int) -> CollectionQuery {
+        var query = self
+        query.pagination = ["start": start, "limit": limit]
         return query
     }
 
