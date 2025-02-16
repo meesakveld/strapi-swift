@@ -7,12 +7,14 @@ import SwiftUI
 /// 🎯 Singleton actor voor thread-safe gebruik van Strapi
 public final actor Strapi: @unchecked Sendable {
     private static var baseURL: String?
+    private static var token: String?
 
     private init() {}
 
     /// Configureer de baseURL voor Strapi
-    public static func configure(baseURL: String) {
+    public static func configure(baseURL: String, token: String? = nil) {
         self.baseURL = baseURL
+        self.token = token
     }
 
     /// Haal de baseURL op (geeft een fout als deze niet is ingesteld)
@@ -21,6 +23,13 @@ public final actor Strapi: @unchecked Sendable {
             fatalError("Strapi is not configured. Call Strapi.configure(baseURL:) first.")
         }
         return url
+    }
+    
+    private static func getToken() throws -> String {
+        guard let token = self.token else {
+            fatalError("Strapi is not configured with token. Call Strapi.configure(baseURL: , token:) first.")
+        }
+        return token
     }
 
     /// Geeft een ContentManager instance terug
