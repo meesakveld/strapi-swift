@@ -37,4 +37,9 @@ public final actor Strapi: @unchecked Sendable {
     public static var contentManager: ContentManager {
         return ContentManager(baseURLProvider: { try self.getBaseURL() })
     }
+    
+    /// Geef een Authentication instance terug
+    public static var authentication: Authentication {
+        return Authentication(baseURLProvider: { try self.getBaseURL() })
+    }
 }
