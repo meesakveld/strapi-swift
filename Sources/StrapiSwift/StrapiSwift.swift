@@ -25,9 +25,10 @@ public final actor Strapi: @unchecked Sendable {
         return url
     }
     
-    private static func getToken() throws -> String {
+    static func getToken() -> String? {
         guard let token = self.token else {
-            fatalError("Strapi is not configured with token. Call Strapi.configure(baseURL: , token:) first.")
+            print("Strapi is not configured with token. Call Strapi.configure(baseURL: , token:) to configure in case you need a token.")
+            return nil
         }
         return token
     }
