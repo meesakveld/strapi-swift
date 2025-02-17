@@ -22,6 +22,9 @@ public final actor Strapi: @unchecked Sendable {
         guard let url = self.baseURL else {
             fatalError("Strapi is not configured. Call Strapi.configure(baseURL:) first.")
         }
+        guard url != "" else {
+            fatalError("Strapi baseURL is empty. Call Strapi.configure(baseURL:) first.")
+        }
         return url
     }
     
