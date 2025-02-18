@@ -15,8 +15,8 @@ public struct LocalAuth {
     }
     
     public struct AuthResponse<T: Decodable>: Decodable {
-        let jwt: String
-        let user: T
+        public let jwt: String
+        public let user: T
     }
     
     struct UserLogin: Encodable {
@@ -36,6 +36,7 @@ public struct LocalAuth {
         let passwordConfirmation: String
     }
     
+    @discardableResult
     public func login<T: Decodable>(identifier: String, password: String, as type: T.Type) async throws -> AuthResponse<T> {
         let baseURL = try baseURLProvider()
         let url = URL(string: baseURL + "/api/auth/local")!
@@ -46,6 +47,7 @@ public struct LocalAuth {
         return response
     }
     
+    @discardableResult
     public func register<T: Decodable>(username: String, email: String, password: String, as type: T.Type) async throws -> AuthResponse<T> {
         let baseURL = try baseURLProvider()
         let url = URL(string: baseURL + "/api/auth/local/register")!
