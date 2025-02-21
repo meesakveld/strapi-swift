@@ -47,6 +47,7 @@ public struct DocumentQuery {
         var queryItems: [URLQueryItem] = []
 
         // Populate toevoegen
+        print("populate: \(populate)")
         for (field, subquery) in populate {
             let subqueryDict = subquery.toDictionary()
             queryItems.append(contentsOf: buildPopulateQuery(field: field, dict: subqueryDict))
@@ -64,6 +65,11 @@ public struct DocumentQuery {
     /// Helper om de populate-query op te bouwen
     private func buildPopulateQuery(field: String, dict: [String: Any]) -> [URLQueryItem] {
         var items: [URLQueryItem] = []
+
+        if dict.isEmpty {
+            items.append(URLQueryItem(name: "populate[\(field)]", value: "true"))
+            return items
+        }
 
         for (key, value) in dict {
             let baseKey = "populate[\(field)][\(key)]"

@@ -1,12 +1,6 @@
-//
-//  PostData.swift
-//  StrapiSwift
-//
-//  Created by Mees Akveld on 17/02/2025.
-//
-
 import Foundation
 
+// Functie voor het versturen van data naar de server met een POST-verzoek
 func postData<T: Decodable, U: Encodable>(to url: URL, body: U, as type: T.Type) async throws -> T {
     print("url: \(url)")
     var request = URLRequest(url: url)
@@ -25,11 +19,22 @@ func postData<T: Decodable, U: Encodable>(to url: URL, body: U, as type: T.Type)
 
     let (data, response) = try await URLSession.shared.data(for: request)
     print("data: \(data)")
+    
+    if let stringResponse = String(data: data, encoding: .utf8) {
+        print("Response body: \(stringResponse)")
+    }
+    
     print("response: \(response)")
 
-    // Controleer of de server een geldige HTTP 2xx-status heeft gegeven
-    guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
-        throw URLError(.badServerResponse)
+    // Controleer of de server een geldige HTTP 200-status heeft gegeven
+    guard let httpResponse = response as? HTTPURLResponse else {
+        throw StrapiSwiftError.unknownError(URLError(.badServerResponse))
+    }
+    
+    if httpResponse.statusCode != 200 {
+        // Probeer het foutbericht van de server te halen
+        let errorMessage = extractStrapiErrorMessage(from: data)
+        throw StrapiSwiftError.badResponse(statusCode: httpResponse.statusCode, message: errorMessage)
     }
 
     // 🔹 Tijdelijke debug-functie om ruwe JSON te printen
