@@ -1,5 +1,5 @@
 //
-//  PutData.swift
+//  MakeRequest.swift
 //  StrapiSwift
 //
 //  Created by Mees Akveld on 22/02/2025.
