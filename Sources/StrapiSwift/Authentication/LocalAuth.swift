@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 public struct LocalAuth {
     private let baseURLProvider: () throws -> String
     
@@ -14,7 +15,7 @@ public struct LocalAuth {
         self.baseURLProvider = baseURLProvider
     }
     
-    public struct AuthResponse<T: Decodable>: Decodable {
+    public struct AuthResponse<T: Decodable & Sendable>: Decodable, Sendable {
         public let jwt: String
         public let user: T
     }
@@ -43,7 +44,7 @@ public struct LocalAuth {
         
         let userLogin = UserLogin(identifier: identifier, password: password)
         
-        let response: AuthResponse<T> = try await postData(to: url, body: userLogin, as: AuthResponse<T>.self)
+        let response: AuthResponse<T> = try await makeRequest(to: url, requestType: .POST, body: userLogin, as: AuthResponse<T>.self)
         return response
     }
     
@@ -54,7 +55,7 @@ public struct LocalAuth {
         
         let userRegister = UserRegister(username: username, email: email, password: password)
         
-        let response: AuthResponse<T> = try await postData(to: url, body: userRegister, as: AuthResponse<T>.self)
+        let response: AuthResponse<T> = try await makeRequest(to: url, requestType: .POST, body: userRegister, as: AuthResponse<T>.self)
         return response
     }
     
@@ -65,8 +66,14 @@ public struct LocalAuth {
 
         let passwordChange = PasswordChange(currentPassword: currentPassword, password: newPassword, passwordConfirmation: newPassword)
         
-        let response: AuthResponse<T> = try await postData(to: url, body: passwordChange, as: AuthResponse<T>.self)
+        let response: AuthResponse<T> = try await makeRequest(to: url, requestType: .POST, body: passwordChange, as: AuthResponse<T>.self)
         return response
     }
     
+    @discardableResult
+    public func updateProfile<T: Decodable & Sendable>(_ data: StrapiRequestBody, userId: Int, as type: T.Type) async throws -> T {
+        let baseURL = try baseURLProvider()
+        let url = URL(string: baseURL + "/api/users/\(userId)")!
+        return try await makeRequest(to: url, requestType: .PUT, body: data.data, as: T.self)
+    }
 }

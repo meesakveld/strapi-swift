@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// 🎯 Object dat een specifieke document-query beheert (alleen mogelijk na `withId`)
+@MainActor
 public struct DocumentQuery {
     private let collection: String
     private let documentId: String
@@ -31,12 +31,6 @@ public struct DocumentQuery {
             query.populate[field] = PopulateQuery()
         }
         return query
-    }
-
-    /// Fetch het document
-    public func getDocument<T: Decodable>(as type: T.Type) async throws -> T {
-        let url = try buildURL()
-        return try await getData(from: url, as: type)
     }
 
     /// Bouw de API URL met populate-opties
@@ -86,5 +80,17 @@ public struct DocumentQuery {
         }
 
         return items
+    }
+    
+    //MARK: - GET DOCUMENT
+    public func getDocument<T: Decodable & Sendable>(as type: T.Type) async throws -> StrapiResponse<T> {
+        let url = try buildURL()
+        return try await makeRequest(to: url, as: StrapiResponse<T>.self)
+    }
+    
+    //MARK: - PostData
+    public func putData<T: Encodable & Sendable>(_ data: StrapiRequestBody, as type: T.Type) async throws -> StrapiResponse<T> {
+        let url = try buildURL()
+        return try await makeRequest(to: url, requestType: .PUT, body: data, as: StrapiResponse<T>.self)
     }
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// 🎯 Object dat collectie-query's beheert (zonder document ID)
+@MainActor
 public struct CollectionQuery {
     private let collection: String
     private let baseURLProvider: () throws -> String
@@ -90,14 +90,8 @@ public struct CollectionQuery {
     public func withDocumentId(_ documentId: String) -> DocumentQuery {
         return DocumentQuery(collection: self.collection, documentId: documentId, baseURLProvider: self.baseURLProvider)
     }
-
-    /// Fetch de documenten
-    public func getDocuments<T: Decodable>(as type: T.Type) async throws -> StrapiResponse<T> {
-        let url = try buildURL()
-        return try await getData(from: url, as: StrapiResponse<T>.self)
-    }
-
-    /// 🔗 Bouw de API URL met query-parameters
+    
+    //MARK: - BUILD URL
     private func buildURL() throws -> URL {
         let baseURL = try baseURLProvider()
         let urlString = "\(baseURL)/api/\(collection)"
@@ -152,6 +146,11 @@ public struct CollectionQuery {
     /// Bouw query-items voor populates op basis van een geneste dictionary
     private func buildPopulateQuery(field: String, dict: [String: Any]) -> [URLQueryItem] {
         var items: [URLQueryItem] = []
+        
+        if dict.isEmpty {
+            items.append(URLQueryItem(name: "populate[\(field)]", value: "true"))
+            return items
+        }
 
         for (key, value) in dict {
             let baseKey = "populate[\(field)][\(key)]"
@@ -168,6 +167,21 @@ public struct CollectionQuery {
         }
 
         return items
+    }
+    
+    
+    //MARK: - GET DOCUMENTS
+    /// Fetch de documenten
+    public func getDocuments<T: Decodable & Sendable>(as type: T.Type) async throws -> StrapiResponse<T> {
+        let url = try buildURL()
+        return try await makeRequest(to: url, as: StrapiResponse<T>.self)
+    }
+    
+    
+    //MARK: - PostData
+    public func postData<T: Decodable & Sendable>(_ data: StrapiRequestBody, as type: T.Type) async throws -> StrapiResponse<T> {
+        let url = try buildURL()
+        return try await makeRequest(to: url, requestType: .POST, body: data, as: StrapiResponse<T>.self)
     }
 
 }

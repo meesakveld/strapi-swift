@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// 🎯 Object voor subqueries in `populate`
+@MainActor
 public struct PopulateQuery {
     private var subPopulates: [String: PopulateQuery] = [:]
 

@@ -7,17 +7,17 @@
 
 import Foundation
 
-/// 🎯 Wrapper voor Strapi API response (indien nodig)
-public struct StrapiResponse<T: Decodable>: Decodable {
+@MainActor
+public struct StrapiResponse<T: Decodable & Sendable>: Decodable & Sendable {
     let data: T
     let meta: Meta?
 }
 
-public struct Meta: Decodable {
+public struct Meta: Decodable & Sendable {
     let pagination: Pagination?
 }
 
-public struct Pagination: Decodable {
+public struct Pagination: Decodable & Sendable {
     let page: Int
     let pageSize: Int
     let pageCount: Int

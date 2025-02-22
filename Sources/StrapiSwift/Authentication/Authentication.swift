@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 public struct Authentication {
     private let baseURLProvider: () throws -> String
 

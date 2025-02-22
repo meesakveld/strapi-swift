@@ -4,8 +4,8 @@
 import Foundation
 import SwiftUI
 
-/// 🎯 Singleton actor voor thread-safe gebruik van Strapi
-public final actor Strapi: @unchecked Sendable {
+@MainActor
+public final class Strapi {
     private static var baseURL: String?
     private static var token: String?
 

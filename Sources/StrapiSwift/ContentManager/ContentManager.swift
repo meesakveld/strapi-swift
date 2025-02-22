@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 
+@MainActor
 public struct ContentManager {
     private let baseURLProvider: () throws -> String
 
