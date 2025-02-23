@@ -8,16 +8,24 @@ import SwiftUI
 public final class Strapi {
     private static var baseURL: String?
     private static var token: String?
-
+    private static var onceToken: String?
+    
     private init() {}
-
+    
     /// Configureer de baseURL voor Strapi
     public static func configure(baseURL: String, token: String? = nil) {
         self.baseURL = baseURL
         self.token = token
     }
+    
+    public static func useTokenOnce(token: String) {
+        onceToken = token
+    }
+    
+    static func resetOnceToken() {
+        onceToken = nil
+    }
 
-    /// Haal de baseURL op (geeft een fout als deze niet is ingesteld)
     private static func getBaseURL() throws -> String {
         guard let url = self.baseURL else {
             fatalError("Strapi is not configured. Call Strapi.configure(baseURL:) first.")
@@ -28,12 +36,15 @@ public final class Strapi {
         return url
     }
     
-    static func getToken() -> String? {
-        guard let token = self.token else {
-            print("Strapi is not configured with token. Call Strapi.configure(baseURL: , token:) to configure in case you need a token.")
-            return nil
+    static func getToken() -> (token: String?, useTokenOnce: Bool) {
+        if let onceToken = self.onceToken {
+            return (token: onceToken, useTokenOnce: true)
+        } else if let token = self.token {
+            return (token: token, useTokenOnce: false)
+        } else {
+            print("Strapi is not configured with token. Call Strapi.configure(baseURL:, token:) to configure in case you need a token.")
+            return (token: nil, useTokenOnce: false)
         }
-        return token
     }
 
     /// Geeft een ContentManager instance terug

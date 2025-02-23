@@ -14,7 +14,7 @@ enum HTTPMethod: String {
 struct EmptyBody: Encodable {}
 
 @MainActor
-func makeRequest<T: Decodable & Sendable, U: Encodable>(
+func makeRequest<T: Decodable, U: Encodable>(
     to url: URL,
     requestType: HTTPMethod = .GET,
     body: U? = EmptyBody(),
@@ -26,8 +26,12 @@ func makeRequest<T: Decodable & Sendable, U: Encodable>(
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     
     // Voeg de token toe als authenticatie nodig is
-    if let token = Strapi.getToken() {
+    let tokenObject = Strapi.getToken()
+    if let token = tokenObject.token {
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        if tokenObject.useTokenOnce {
+            Strapi.resetOnceToken()
+        }
     }
 
     // Encodeer de body alleen als deze aanwezig is en niet voor GET

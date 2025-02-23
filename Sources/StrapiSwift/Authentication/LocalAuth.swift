@@ -71,9 +71,15 @@ public struct LocalAuth {
     }
     
     @discardableResult
-    public func updateProfile<T: Decodable & Sendable>(_ data: StrapiRequestBody, userId: Int, as type: T.Type) async throws -> T {
+    public func updateProfile<T: Decodable>(_ data: StrapiRequestBody, userId: Int, as type: T.Type) async throws -> T {
         let baseURL = try baseURLProvider()
         let url = URL(string: baseURL + "/api/users/\(userId)")!
         return try await makeRequest(to: url, requestType: .PUT, body: data.data, as: T.self)
+    }
+    
+    public func me<T: Decodable>(as type: T.Type) async throws -> T {
+        let baseURL = try baseURLProvider()
+        let url = URL(string: baseURL + "/api/users/me?populate=*")!
+        return try await makeRequest(to: url, requestType: .GET, as: T.self)
     }
 }
