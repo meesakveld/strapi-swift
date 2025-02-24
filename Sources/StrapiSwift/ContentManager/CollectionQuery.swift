@@ -26,9 +26,9 @@ public struct CollectionQuery {
     }
 
     /// Voeg een filter toe
-    public func filter(_ field: String, isEqualTo value: Any) -> CollectionQuery {
+    public func filter(_ field: String, operator: FilterOperator, value: Any) -> CollectionQuery {
         var query = self
-        query.filters[field] = ["$eq": value]
+        query.filters[field] = [`operator`.rawValue: value]
         return query
     }
 
@@ -101,7 +101,7 @@ public struct CollectionQuery {
         // Filters
         for (field, condition) in filters {
             for (operatorKey, value) in condition as! [String: Any] {
-                queryItems.append(URLQueryItem(name: "filters[\(field)][\(operatorKey)]", value: "\(value)"))
+                queryItems.append(URLQueryItem(name: "filters\(field)[\(operatorKey)]", value: "\(value)"))
             }
         }
 
