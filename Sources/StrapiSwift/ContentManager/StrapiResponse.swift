@@ -9,17 +9,17 @@ import Foundation
 
 @MainActor
 public struct StrapiResponse<T: Decodable & Sendable>: Decodable & Sendable {
-    let data: T
-    let meta: Meta?
+    public let data: T
+    public let meta: Meta?
 }
 
 public struct Meta: Decodable & Sendable {
-    let pagination: Pagination?
+    public let pagination: Pagination?
 }
 
 public struct Pagination: Decodable & Sendable {
-    let page: Int
-    let pageSize: Int
-    let pageCount: Int
-    let total: Int
+    public let page: Int
+    public let pageSize: Int
+    public let pageCount: Int
+    public let total: Int
 }
