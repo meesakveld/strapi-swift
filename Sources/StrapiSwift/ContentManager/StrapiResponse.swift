@@ -18,8 +18,10 @@ public struct Meta: Decodable & Sendable {
 }
 
 public struct Pagination: Decodable & Sendable {
-    public let page: Int
-    public let pageSize: Int
-    public let pageCount: Int
-    public let total: Int
+    public let page: Int?
+    public let pageSize: Int?
+    public let pageCount: Int?
+    public let limit: Int?
+    public let start: Int?
+    public let total: Int?
 }
