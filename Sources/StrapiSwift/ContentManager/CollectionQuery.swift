@@ -14,8 +14,8 @@ public struct CollectionQuery {
     
     private var filters: [String: Any] = [:]
     private var populate: [String: PopulateQuery] = [:]
+    var sort: [[String: String]] = []
     private var fields: [String] = []
-    private var sort: [String] = []
     private var pagination: [String: Int] = [:]
     private var locale: String?
     private var status: String?
@@ -33,9 +33,9 @@ public struct CollectionQuery {
     }
 
     /// Sorteer de resultaten
-    public func sort(by field: String, order: String = "asc") -> CollectionQuery {
+    public func sort(by field: String, order: SortOperator = .ascending) -> CollectionQuery {
         var query = self
-        query.sort.append("\(field):\(order)")
+        query.sort.append([field: order.rawValue])
         return query
     }
 
@@ -111,9 +111,10 @@ public struct CollectionQuery {
             queryItems.append(contentsOf: buildPopulateQuery(field: field, dict: subqueryDict))
         }
 
-        // Sortering
-        for (index, value) in sort.enumerated() {
-            queryItems.append(URLQueryItem(name: "sort[\(index)]", value: value))
+        for (index, sortCondition) in sort.enumerated() {
+            for (field, order) in sortCondition {
+                queryItems.append(URLQueryItem(name: "sort[\(index)][\(field)]", value: order))
+            }
         }
 
         // Velden
