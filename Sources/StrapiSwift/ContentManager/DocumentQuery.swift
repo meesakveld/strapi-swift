@@ -12,6 +12,7 @@ public struct DocumentQuery {
     private let collection: String
     private let documentId: String
     private let baseURLProvider: () throws -> String
+    private var filters: [String: Any] = [:]
     private var populate: [String: PopulateQuery] = [:]
 
     init(collection: String, documentId: String, baseURLProvider: @escaping () throws -> String) {
@@ -19,8 +20,13 @@ public struct DocumentQuery {
         self.documentId = documentId
         self.baseURLProvider = baseURLProvider
     }
+    
+    public func filter(_ field: String, operator: FilterOperator, value: Any) -> DocumentQuery {
+        var query = self
+        query.filters[field] = [`operator`.rawValue: value]
+        return query
+    }
 
-    /// Voeg een `populate`-optie toe, maar alleen ná `withDocumentId`
     public func populate(_ field: String, _ configure: ((inout PopulateQuery) -> Void)? = nil) -> DocumentQuery {
         var query = self
         if let configure = configure {
@@ -40,6 +46,13 @@ public struct DocumentQuery {
         
         var queryItems: [URLQueryItem] = []
 
+        // Filters
+        for (field, condition) in filters {
+            for (operatorKey, value) in condition as! [String: Any] {
+                queryItems.append(URLQueryItem(name: "filters\(field)[\(operatorKey)]", value: "\(value)"))
+            }
+        }
+        
         // Populate toevoegen
         print("populate: \(populate)")
         for (field, subquery) in populate {
