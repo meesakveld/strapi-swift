@@ -33,16 +33,35 @@ public struct StrapiImage: Identifiable, Codable {
     }
     
     // MARK: - Utils
-    public func getSmallestFormat() -> String? {
-        if let thumbnailUrl = formats?.thumbnail?.url {
-            return thumbnailUrl
-        } else if let smallUrl = formats?.small?.url {
-            return smallUrl
-        } else if let mediumUrl = formats?.medium?.url {
-            return mediumUrl
-        } else if let largeUrl = formats?.large?.url {
-            return largeUrl
-        } else {
+    public enum ImageSize {
+        case thumbnail
+        case small
+        case medium
+        case large
+        case original
+    }
+
+    public func getURL(size: ImageSize) -> String {
+        switch size {
+        case .thumbnail:
+            return formats?.thumbnail?.url
+                ?? formats?.small?.url
+                ?? formats?.medium?.url
+                ?? formats?.large?.url
+                ?? url
+        case .small:
+            return formats?.small?.url
+                ?? formats?.medium?.url
+                ?? formats?.large?.url
+                ?? url
+        case .medium:
+            return formats?.medium?.url
+                ?? formats?.large?.url
+                ?? url
+        case .large:
+            return formats?.large?.url
+                ?? url
+        case .original:
             return url
         }
     }
