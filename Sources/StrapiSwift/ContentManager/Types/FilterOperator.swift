@@ -29,7 +29,4 @@ public enum FilterOperator: String {
     case startsWithInsensitive = "$startsWithi"
     case endsWith = "$endsWith"
     case endsWithInsensitive = "$endsWithi"
-    // case or = "$or"
-    // case and = "$and"
-    // case not = "$not"
 }

@@ -13,6 +13,7 @@ public struct DocumentQuery {
     private let documentId: String
     private let baseURLProvider: () throws -> String
     private var filters: [String: Any] = [:]
+    private var filterGroups: [FilterGroup] = []
     private var populate: [String: PopulateQuery] = [:]
 
     init(collection: String, documentId: String, baseURLProvider: @escaping () throws -> String) {
@@ -24,6 +25,14 @@ public struct DocumentQuery {
     public func filter(_ field: String, operator: FilterOperator, value: Any) -> DocumentQuery {
         var query = self
         query.filters[field] = [`operator`.rawValue: value]
+        return query
+    }
+    
+    public func filterGroup(type: FilterGroup.LogicOperator, _ configure: (inout FilterGroup) -> Void) -> DocumentQuery {
+        var query = self
+        var group = FilterGroup(type: type)
+        configure(&group)
+        query.filterGroups.append(group)
         return query
     }
 
@@ -50,6 +59,21 @@ public struct DocumentQuery {
         for (field, condition) in filters {
             for (operatorKey, value) in condition as! [String: Any] {
                 queryItems.append(URLQueryItem(name: "filters\(field)[\(operatorKey)]", value: "\(value)"))
+            }
+        }
+        
+        // Filtergroepen ($or, $and)
+        for (_, group) in filterGroups.enumerated() {
+            let groupDict = group.toDictionary()
+            if let filtersArray = groupDict[group.type.rawValue] as? [[String: Any]] {
+                for (filterIndex, filter) in filtersArray.enumerated() {
+                    for (field, condition) in filter {
+                        for (operatorKey, value) in condition as! [String: Any] {
+                            let key = "filters[\(group.type.rawValue)][\(filterIndex)]\(field)[\(operatorKey)]"
+                            queryItems.append(URLQueryItem(name: key, value: "\(value)"))
+                        }
+                    }
+                }
             }
         }
         
