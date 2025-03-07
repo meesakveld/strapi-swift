@@ -56,4 +56,9 @@ public final class Strapi {
     public static var authentication: Authentication {
         return Authentication(baseURLProvider: { try self.getBaseURL() })
     }
+    
+    /// Geef een MediaLibrary instance terug
+    public static var mediaLibrary: MediaLibrary {
+        return MediaLibrary(baseURLProvider: { try self.getBaseURL() })
+    }
 }

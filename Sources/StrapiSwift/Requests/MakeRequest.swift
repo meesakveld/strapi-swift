@@ -8,7 +8,21 @@
 import Foundation
 
 enum HTTPMethod: String {
-    case GET, POST, PUT
+    case GET, POST, PUT, DELETE
+}
+
+enum ContentType {
+    case applicationJSON
+    case multipartFormData(boundary: String)
+    
+    var rawValue: String {
+        switch self {
+        case .applicationJSON:
+            return "application/json"
+        case .multipartFormData(let boundary):
+            return "multipart/form-data; boundary=\(boundary)"
+        }
+    }
 }
 
 struct EmptyBody: Encodable {}
@@ -17,13 +31,14 @@ struct EmptyBody: Encodable {}
 func makeRequest<T: Decodable, U: Encodable>(
     to url: URL,
     requestType: HTTPMethod = .GET,
+    contentType: ContentType = .applicationJSON,
     body: U? = EmptyBody(),
     as type: T.Type
 ) async throws -> T {
     print("url: \(url)")
     var request = URLRequest(url: url)
     request.httpMethod = requestType.rawValue
-    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    request.setValue(contentType.rawValue, forHTTPHeaderField: "Content-Type")
     
     // Voeg de token toe als authenticatie nodig is
     let tokenObject = Strapi.getToken()
@@ -36,7 +51,11 @@ func makeRequest<T: Decodable, U: Encodable>(
 
     // Encodeer de body alleen als deze aanwezig is en niet voor GET
     if let body = body, requestType != .GET {
-        request.httpBody = try JSONEncoder().encode(body)
+        if contentType.rawValue == "application/json" {
+            request.httpBody = try JSONEncoder().encode(body)
+        } else {
+            request.httpBody = body as? Data
+        }
     }
     
     let (data, response) = try await URLSession.shared.data(for: request)
@@ -46,14 +65,13 @@ func makeRequest<T: Decodable, U: Encodable>(
     if let stringResponse = String(data: data, encoding: .utf8) {
         print("Response body: \(stringResponse)")
     }
-    print("response: \(response)")
 
     // Controleer of de server een geldige HTTP 200-status heeft gegeven
     guard let httpResponse = response as? HTTPURLResponse else {
         throw StrapiSwiftError.unknownError(URLError(.badServerResponse))
     }
 
-    if httpResponse.statusCode != 200 {
+    if httpResponse.statusCode != 200 && httpResponse.statusCode != 201 {
         let errorMessage = extractStrapiErrorMessage(from: data)
         throw StrapiSwiftError.badResponse(statusCode: httpResponse.statusCode, message: errorMessage)
     }
