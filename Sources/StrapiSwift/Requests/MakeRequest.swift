@@ -90,7 +90,9 @@ func makeRequest<T: Decodable, U: Encodable>(
             print("❌ Fout bij parsen van JSON:", error)
         }
     }
-    debugRawJSON(data)
+    if !data.isEmpty {
+        debugRawJSON(data)
+    } else { print("No data returned") }
 
     guard !data.isEmpty else {
         throw RequestError.noDataAvailable

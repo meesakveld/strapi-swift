@@ -136,7 +136,7 @@ public struct DocumentQuery {
         let url = try buildURL()
         do {
             try await makeRequest(to: url, requestType: .DELETE, as: Bool?.self)
-        } catch let error as RequestError {
+        } catch _ as RequestError {
         } catch { throw error }
     }
 }
