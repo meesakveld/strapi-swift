@@ -27,7 +27,12 @@ enum ContentType {
 
 struct EmptyBody: Encodable {}
 
+enum RequestError: Error {
+    case noDataAvailable
+}
+
 @MainActor
+@discardableResult
 func makeRequest<T: Decodable, U: Encodable>(
     to url: URL,
     requestType: HTTPMethod = .GET,
@@ -71,7 +76,7 @@ func makeRequest<T: Decodable, U: Encodable>(
         throw StrapiSwiftError.unknownError(URLError(.badServerResponse))
     }
 
-    if httpResponse.statusCode != 200 && httpResponse.statusCode != 201 {
+    if httpResponse.statusCode != 200 && httpResponse.statusCode != 201 && httpResponse.statusCode != 204 {
         let errorMessage = extractStrapiErrorMessage(from: data)
         throw StrapiSwiftError.badResponse(statusCode: httpResponse.statusCode, message: errorMessage)
     }
@@ -87,5 +92,9 @@ func makeRequest<T: Decodable, U: Encodable>(
     }
     debugRawJSON(data)
 
+    guard !data.isEmpty else {
+        throw RequestError.noDataAvailable
+    }
+    
     return try JSONDecoder().decode(T.self, from: data)
 }

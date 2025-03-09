@@ -130,4 +130,13 @@ public struct DocumentQuery {
         let url = try buildURL()
         return try await makeRequest(to: url, requestType: .PUT, body: data, as: StrapiResponse<T>.self)
     }
+    
+    //MARK: - DELETE DOCUMENT
+    public func delete() async throws {
+        let url = try buildURL()
+        do {
+            try await makeRequest(to: url, requestType: .DELETE, as: Bool?.self)
+        } catch let error as RequestError {
+        } catch { throw error }
+    }
 }
