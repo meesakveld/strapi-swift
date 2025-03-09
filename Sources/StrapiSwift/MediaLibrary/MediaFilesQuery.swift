@@ -39,11 +39,12 @@ public struct MediaFilesQuery {
     
     /// Uploads a file to Strapi from a URL
     public func uploadImage(fileURL: URL) async throws -> StrapiImage? {
-        let fileData = try Data(contentsOf: fileURL)
+        // Fetch image
+        let (data, _) = try await URLSession.shared.data(from: fileURL)
         let fileName = fileURL.lastPathComponent
         let mimeType = mimeType(for: fileURL.path)
         
-        let response = try await uploadImage(data: fileData, fileName: fileName, mimeType: mimeType)
+        let response = try await uploadImage(data: data, fileName: fileName, mimeType: mimeType)
         return response
     }
     
