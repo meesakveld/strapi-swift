@@ -136,7 +136,8 @@ public struct DocumentQuery {
         let url = try buildURL()
         do {
             try await makeRequest(to: url, requestType: .DELETE, as: Bool?.self)
-        } catch _ as RequestError {
+        } catch let error as StrapiSwiftError {
+            guard case .noDataAvailable = error else { throw error }
         } catch { throw error }
     }
 }

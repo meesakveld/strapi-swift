@@ -11,6 +11,7 @@ public enum StrapiSwiftError: Error {
     case badResponse(statusCode: Int, message: String?)
     case decodingError(Error)
     case unknownError(Error)
+    case noDataAvailable
 
     var localizedDescription: String {
         switch self {
@@ -20,6 +21,8 @@ public enum StrapiSwiftError: Error {
             return "Error decoding data: \(error.localizedDescription)"
         case .unknownError(let error):
             return "Unknown error occurred: \(error.localizedDescription)"
+        case .noDataAvailable:
+            return "No data available."
         }
     }
 }

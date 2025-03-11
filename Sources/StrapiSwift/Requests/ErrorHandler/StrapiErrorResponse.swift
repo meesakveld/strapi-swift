@@ -16,5 +16,16 @@ struct StrapiErrorDetails: Decodable {
     let status: Int
     let name: String
     let message: String
-    let details: [String: String]
+    let details: StrapiErrorDetailsArray
+}
+
+struct StrapiErrorDetailsArray: Decodable {
+    let errors: [StrapiErrorDetailsArraySlices]
+}
+
+struct StrapiErrorDetailsArraySlices: Decodable {
+    let path: [String]
+    let message: String
+    let name: String
+    let value: String
 }

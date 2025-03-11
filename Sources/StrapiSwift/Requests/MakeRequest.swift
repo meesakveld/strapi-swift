@@ -27,10 +27,6 @@ enum ContentType {
 
 struct EmptyBody: Encodable {}
 
-enum RequestError: Error {
-    case noDataAvailable
-}
-
 @MainActor
 @discardableResult
 func makeRequest<T: Decodable, U: Encodable>(
@@ -95,7 +91,7 @@ func makeRequest<T: Decodable, U: Encodable>(
     } else { print("No data returned") }
 
     guard !data.isEmpty else {
-        throw RequestError.noDataAvailable
+        throw StrapiSwiftError.noDataAvailable
     }
     
     return try JSONDecoder().decode(T.self, from: data)
