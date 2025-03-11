@@ -205,6 +205,7 @@ public struct CollectionQuery {
     
     
     //MARK: - PostData
+    @discardableResult
     public func postData<T: Decodable & Sendable>(_ data: StrapiRequestBody, as type: T.Type) async throws -> StrapiResponse<T> {
         let url = try buildURL()
         return try await makeRequest(to: url, requestType: .POST, body: data, as: StrapiResponse<T>.self)
