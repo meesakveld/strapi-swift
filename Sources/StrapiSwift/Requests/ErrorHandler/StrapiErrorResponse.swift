@@ -9,18 +9,18 @@ import Foundation
 
 struct StrapiErrorResponse: Decodable {
     let data: String?
-    let error: StrapiErrorDetails
+    let error: StrapiErrorDetails?
 }
 
 struct StrapiErrorDetails: Decodable {
     let status: Int
     let name: String
     let message: String
-    let details: StrapiErrorDetailsArray
+    let details: StrapiErrorDetailsArray?
 }
 
 struct StrapiErrorDetailsArray: Decodable {
-    let errors: [StrapiErrorDetailsArraySlices]
+    let errors: [StrapiErrorDetailsArraySlices]?
 }
 
 struct StrapiErrorDetailsArraySlices: Decodable {
