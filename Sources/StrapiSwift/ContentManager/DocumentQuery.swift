@@ -125,7 +125,8 @@ public struct DocumentQuery {
         return try await makeRequest(to: url, as: StrapiResponse<T>.self)
     }
     
-    //MARK: - PostData
+    //MARK: - PUT DATA
+    @discardableResult
     public func putData<T: Encodable & Sendable>(_ data: StrapiRequestBody, as type: T.Type) async throws -> StrapiResponse<T> {
         let url = try buildURL()
         return try await makeRequest(to: url, requestType: .PUT, body: data, as: StrapiResponse<T>.self)
