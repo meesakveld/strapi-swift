@@ -82,4 +82,10 @@ public struct LocalAuth {
         let url = URL(string: baseURL + "/api/users/me?populate=*")!
         return try await makeRequest(to: url, requestType: .GET, as: T.self)
     }
+    
+    public func me<T: Decodable>(extendUrl: String, requestType: HTTPMethod, data: StrapiRequestBody? = nil, as type: T.Type) async throws {
+        let baseURL = try baseURLProvider()
+        let url = baseURL + "/api/users/me" + extendUrl
+        try await makeRequest(to: URL(string: url)!, requestType: requestType, body: data, as: T.self)
+    }
 }
