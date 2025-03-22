@@ -9,7 +9,7 @@ import Foundation
 
 @MainActor
 public struct Authentication {
-    private let baseURLProvider: () throws -> String
+    internal let baseURLProvider: () throws -> String
 
     public init(baseURLProvider: @escaping () throws -> String) {
         self.baseURLProvider = baseURLProvider

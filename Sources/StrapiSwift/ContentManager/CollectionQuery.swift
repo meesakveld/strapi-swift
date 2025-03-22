@@ -12,14 +12,14 @@ public struct CollectionQuery {
     private let collection: String
     private let baseURLProvider: () throws -> String
     
-    private var filters: [String: Any] = [:]
+    internal var filters: [String: Any] = [:]
     private var filterGroups: [FilterGroup] = []
     private var populate: [String: PopulateQuery] = [:]
     var sort: [[String: String]] = []
     private var fields: [String] = []
-    private var pagination: [String: Int] = [:]
-    private var locale: String?
-    private var status: String?
+    internal var pagination: [String: Int] = [:]
+    internal var locale: String?
+    internal var status: String?
     
     init(collection: String, baseURLProvider: @escaping () throws -> String) {
         self.collection = collection

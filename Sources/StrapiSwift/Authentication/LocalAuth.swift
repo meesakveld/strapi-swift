@@ -9,7 +9,7 @@ import Foundation
 
 @MainActor
 public struct LocalAuth {
-    private let baseURLProvider: () throws -> String
+    internal let baseURLProvider: () throws -> String
     
     init(baseURLProvider: @escaping () throws -> String) {
         self.baseURLProvider = baseURLProvider

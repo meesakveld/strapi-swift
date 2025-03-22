@@ -26,12 +26,12 @@ public final class Strapi {
         onceToken = nil
     }
 
-    private static func getBaseURL() throws -> String {
+    internal static func getBaseURL() throws -> String {
         guard let url = self.baseURL else {
-            fatalError("Strapi is not configured. Call Strapi.configure(baseURL:) first.")
+            throw NSError(domain: "StrapiError", code: 2, userInfo: [NSLocalizedDescriptionKey: "Strapi baseURL is empty. Call Strapi.configure(baseURL:) first."])
         }
         guard url != "" else {
-            fatalError("Strapi baseURL is empty. Call Strapi.configure(baseURL:) first.")
+            throw NSError(domain: "StrapiError", code: 2, userInfo: [NSLocalizedDescriptionKey: "Strapi baseURL is empty. Call Strapi.configure(baseURL:) first."])
         }
         return url
     }

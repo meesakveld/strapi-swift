@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum FilterOperator: String {
+public enum FilterOperator: String, CaseIterable {
     case equal = "$eq"
     case equalInsensitive = "$eqi"
     case notEqual = "$ne"
