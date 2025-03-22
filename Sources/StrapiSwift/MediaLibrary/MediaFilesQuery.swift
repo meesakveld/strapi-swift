@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import UIKit
+import SwiftUI
 
 @MainActor
 public struct MediaFilesQuery {
