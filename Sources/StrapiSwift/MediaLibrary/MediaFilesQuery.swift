@@ -7,6 +7,9 @@
 
 import Foundation
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 @MainActor
 public struct MediaFilesQuery {
@@ -25,7 +28,7 @@ public struct MediaFilesQuery {
     }
     
     /// Uploads an image to Strapi from a UIImage
-    @available(iOS 18.0, *)
+    #if canImport(UIKit)
     public func uploadImage(image: UIImage) async throws -> StrapiImage? {
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             throw NSError(domain: "MediaFilesQuery", code: -1, userInfo: [NSLocalizedDescriptionKey: "Could not convert UIImage to JPEG data"])
@@ -37,6 +40,7 @@ public struct MediaFilesQuery {
         let response = try await uploadImage(data: imageData, fileName: fileName, mimeType: mimeType)
         return response
     }
+    #endif
     
     /// Uploads a file to Strapi from a URL
     public func uploadImage(fileURL: URL) async throws -> StrapiImage? {
