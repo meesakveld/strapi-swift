@@ -54,7 +54,7 @@ The configuration can always be overwritten, to for example use a jwt token afte
 After making an request with the token, the one time use token will be replaced with the original configured token.
 
 ```swift
-Strapi.useTokenOnce(token: some-token)
+Strapi.useTokenOnce(token: "some-token")
 ```
 
 <br>
