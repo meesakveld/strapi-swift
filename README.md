@@ -23,7 +23,7 @@ You can add StrapiSwift to your Swift project using Swift Package Manager.
 
 1. In Xcode, go to File -> Swift Packages -> Add Package Dependency.
 
-2. Enter the repository URL: https://github.com/yourusername/StrapiSwift.
+2. Enter the repository URL: `https://github.com/meesakveld/strapi-swift.git`
 
 3. Choose the version or branch you want to use.
 
