@@ -5,12 +5,29 @@ StrapiSwift is a Swift package that provides a simple and easy way to interact w
 ## Table of Contents
 - [StrapiSwift](#strapiswift)
   - [Table of Contents](#table-of-contents)
+  - [Installation](#installation)
   - [Configuration](#configuration)
     - [Setup](#setup)
     - [Use a replacing token once](#use-a-replacing-token-once)
   - [Content Manager](#content-manager)
   - [Authentication Local Provider](#authentication-local-provider)
   - [Media Library](#media-library)
+  - [How to Contribute](#how-to-contribute)
+  - [License](#license)
+
+<br>
+
+## Installation
+
+You can add StrapiSwift to your Swift project using Swift Package Manager.
+
+1. In Xcode, go to File -> Swift Packages -> Add Package Dependency.
+
+2. Enter the repository URL: https://github.com/yourusername/StrapiSwift.
+
+3. Choose the version or branch you want to use.
+
+<br>
 
 ## Configuration
 To configure StrapiSwift, you need to provide the base URL of your Strapi API and the authentication token (if needed).
@@ -175,3 +192,11 @@ Strapi.useTokenOnce(token: "some-token")
     ```swift
     try await Strapi.mediaLibrary.files.withId(1).delete(as: StrapiImage.self)
     ```
+
+## How to Contribute
+
+If you'd like to contribute, feel free to fork the repository, make your changes, and open a pull request.
+
+## License
+
+StrapiSwift is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for more details.
