@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 5.5
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "StrapiSwift",
     platforms: [
-        .iOS(.v18),
+        .iOS(.v15),
         .macOS(.v12)
     ],
     products: [
